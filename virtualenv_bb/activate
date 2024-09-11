@@ -100,7 +100,7 @@ pydoc () {
     python -m pydoc "$@"
 }
 
-if [[ "${LD_LIBRARY_PATH}" == *"matlab"* ]]; then
+if [[ "${LD_LIBRARY_PATH,,}" == *"matlab"* ]]; then
     #### matlab libraries can cause lots of headaches... so adjust
     if [ ! -z "$(find ${VIRTUAL_ENV}/lib/python* -type d -name 'nvidia')" ]; then
         dp="$(find ${VIRTUAL_ENV}/lib/python* -type d -name 'nvidia')"
@@ -113,7 +113,7 @@ if [[ "${LD_LIBRARY_PATH}" == *"matlab"* ]]; then
     fi
     export LD_LIBRARY_PATH="${VIRTUAL_ENV}/lib:${VIRUTAL_ENV}/lib64${LD_LIBRARY_PATH+:$LD_LIBRARY_PATH}${_OLD_VIRTUAL_LD_LIBRARY_PATH:+:$_OLD_VIRTUAL_LD_LIBRARY_PATH}"
 else
-    export LD_LIBRARY_PATH="${VIRTUAL_ENV}/lib:${VIRTUAL_ENV}/lib64${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH}"
+    export LD_LIBRARY_PATH="${VIRTUAL_ENV}/lib:${VIRTUAL_ENV}/lib64${LD_LIBRARY_PATH+:$LD_LIBRARY_PATH}"
 fi
 export LIBRARY_PATH="${VIRTUAL_ENV}/lib:${VIRTUAL_ENV}/lib64${LIBRARY_PATH:+:$LIBRARY_PATH}"
 export PKG_CONFIG_PATH="${VIRTUAL_ENV}/lib/pkgconfig:${VIRTUAL_ENV}/lib64/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
