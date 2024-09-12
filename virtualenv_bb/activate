@@ -39,11 +39,23 @@ deactivate(){
 
     for care in ${care_for[@]}; do
         old_care="${care_handle}${care}"
-        if ! [ -z "${!old_care+x}" ]; then
-            export ${care}="${!old_care-}"
-            unset ${!old_care}
+        care_exist=$([ -z ${!care+x} ] && echo false || echo true)
+        old_care_exist=$([ -z "${!old_care+x}" ] && echo false || echo true)
+        old_care_empty=$([ ! -z "${!old_care-x}" ] && echo false || echo true)
+        if [ $care_exist = false ] && [ $old_care_exist = true ]; then
+            if [ $old_care_empty = false ]; then
+                export ${care}="${!old_care-}"
+            fi
+        elif [ $care_exist = true ] && [ $old_care_exist = true ]; then
+            if [ $old_care_empty = false ]; then
+                export ${care}="${!old_care-}"
+            else
+                unset ${care}
+            fi
         fi
-    done    
+    done
+
+    unset $(compgen -v | grep ${care_handle})
 
     # The hash command must be called to get it to forget past
     # commands. Without forgetting past commands the $PATH changes
@@ -79,18 +91,11 @@ else
     VIRTUAL_ENV_PROMPT=$(basename "${VIRTUAL_ENV}")
 fi
 
-# unset PYTHONHOME if set
-if ! [ -z "${PYTHONHOME+_}" ] ; then
-    _OLD_VIRTUAL_PYTHONHOME="$PYTHONHOME"
-    unset PYTHONHOME
-fi
-
 if [ -z "${VIRTUAL_ENV_DISABLE_PROMPT-}" ]; then
     # Use the exetend prompt
     PS1="(\[\e[38;5;219m\]${VIRTUAL_ENV_PROMPT}\[\e[m\]) ${PS1-}"
     export PS1
 fi
-
 
 
 # Make sure to unalias pydoc if it's already there
@@ -102,18 +107,21 @@ pydoc () {
 
 if [[ "${LD_LIBRARY_PATH,,}" == *"matlab"* ]]; then
     #### matlab libraries can cause lots of headaches... so adjust
+    extra_care=""
     if [ ! -z "$(find ${VIRTUAL_ENV}/lib/python* -type d -name 'nvidia')" ]; then
         dp="$(find ${VIRTUAL_ENV}/lib/python* -type d -name 'nvidia')"
-        LD_LIBRARY_PATH = ""
+        LD_LIBRARY_PATH=""
         for lib in $(find $dp -type f,l -name "*.so*"); do
             if ! [[ "LD_LIBRARY_PATH" == *"$(dirname $lib)"* ]]; then
                 LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}$(dirname $lib)"
             fi
         done
+        old_care="${care_handle}LD_LIBRARY_PATH"
+        extra_care="${!old_care-}"
     fi
-    export LD_LIBRARY_PATH="${VIRTUAL_ENV}/lib:${VIRUTAL_ENV}/lib64${LD_LIBRARY_PATH+:$LD_LIBRARY_PATH}${_OLD_VIRTUAL_LD_LIBRARY_PATH:+:$_OLD_VIRTUAL_LD_LIBRARY_PATH}"
+    export LD_LIBRARY_PATH="${VIRTUAL_ENV}/lib:${VIRTUAL_ENV}/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}${extra_care:+:$extra_care}"
 else
-    export LD_LIBRARY_PATH="${VIRTUAL_ENV}/lib:${VIRTUAL_ENV}/lib64${LD_LIBRARY_PATH+:$LD_LIBRARY_PATH}"
+    export LD_LIBRARY_PATH="${VIRTUAL_ENV}/lib:${VIRTUAL_ENV}/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 fi
 export LIBRARY_PATH="${VIRTUAL_ENV}/lib:${VIRTUAL_ENV}/lib64${LIBRARY_PATH:+:$LIBRARY_PATH}"
 export PKG_CONFIG_PATH="${VIRTUAL_ENV}/lib/pkgconfig:${VIRTUAL_ENV}/lib64/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
