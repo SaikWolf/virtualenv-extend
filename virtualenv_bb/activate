@@ -85,8 +85,8 @@ protect
 
 export PATH="${VIRTUAL_ENV}/__BIN_NAME__:${PATH}"
 
-if [ "x"_VIRTUAL_PROMPT__ != x ]; then
-    VIRTUAL_ENV_PROMPT="__VIRTUAL_PROMPT__"
+if [ "x"__VIRTUAL_PROMPT__ != x ]; then
+    VIRTUAL_ENV_PROMPT=__VIRTUAL_PROMPT__
 else
     VIRTUAL_ENV_PROMPT=$(basename "${VIRTUAL_ENV}")
 fi

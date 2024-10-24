@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='virtualenv-better-bash',
-    version='0.3.1',
+    version='0.3.2',
     description='Add in custom modifications to virtualenv',
     author='Bill Clark',
     packages=find_packages(),
